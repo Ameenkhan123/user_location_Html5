@@ -1,0 +1,108 @@
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script> 
+<script type="text/javascript"> 
+	var geocoder;
+
+	if (navigator.geolocation) 
+	{
+		navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
+	} 
+//Get the latitude and the longitude;
+function successFunction(position) 
+{
+	var lat = position.coords.latitude;
+	var lng = position.coords.longitude;
+	codeLatLng(lat, lng)
+}
+
+function errorFunction()
+{
+	alert("Geocoder failed");
+}
+
+function initialize() {
+	geocoder = new google.maps.Geocoder();
+}
+
+function codeLatLng(lat, lng) {
+
+	var latlng = new google.maps.LatLng(lat, lng);
+	geocoder.geocode({'latLng': latlng}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			console.log(results)
+			if (results[1]) {
+				 //formatted address
+				 // alert(results[0].formatted_address);
+				 for (var i=0; i<results[0].address_components.length; i++) {
+				 	for (var b=0;b<results[0].address_components[i].types.length;b++) {
+
+						//there are different types that might hold a city admin_area_lvl_1 usually does in come cases looking for sublocality type will be more appropriate
+						if (results[0].address_components[i].types[b] == "administrative_area_level_1") {
+										//this is the object you are looking for
+										city= results[0].address_components[i];
+										break;
+									}
+								}
+							}
+				//city data
+				// alert(city.short_name + " " + city.long_name)
+			} else {
+				alert("No results found");
+			}
+		} else {
+			alert("Geocoder failed due to: " + status);
+		}
+	});
+}
+</script> 
+
+<div onload="initialize()"></div> 
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_A6R-m635-RxYIiErJkl08dLbVL5dtUA
+&callback=initMap"
+async defer></script>
+
+<div>Country: <span id="country"></span></div><br>
+<div>State: <span id="state"></span></div><br>
+<div>City: <span id="city"></span></div><br>
+<div>Address: <span id="address"></span></div><br>
+<div>Latitude: <span id="latitude"></span></div><br>
+<div>Longitude: <span id="longitude"></span></div><br>
+<script type="text/javascript">
+	navigator.geolocation.getCurrentPosition(success, error);
+
+	function success(position) {
+
+		var GEOCODING = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' + position.coords.latitude + '%2C' + position.coords.longitude + '&language=en';
+
+		$.getJSON(GEOCODING).done(function(location) {
+			$('#country').html(location.results[0].address_components[5].long_name);
+			$('#state').html(location.results[0].address_components[4].long_name);
+			$('#city').html(location.results[0].address_components[2].long_name);
+			$('#address').html(location.results[0].formatted_address);
+			$('#latitude').html(position.coords.latitude);
+			$('#longitude').html(position.coords.longitude);
+		})
+
+	}
+
+	function error(err) {
+		console.log(err)
+	}
+</script>
+<!-- <div>IP: <span id="ip"></span></div> -->
+<!--   <script>
+		$.ajax({
+			url: "https://geoip-db.com/jsonp",
+			jsonpCallback: "callback",
+			dataType: "jsonp",
+			success: function( location ) {
+				// $('#country').html(location.country_name);
+				// $('#state').html(location.state);
+				// $('#city').html(location.city);
+				// $('#address').html(location.address);
+				// $('#latitude').html(location.latitude);
+				// $('#longitude').html(location.longitude);
+				$('#ip').html(location.IPv4);  
+			}
+		});     
+	</script> -->
